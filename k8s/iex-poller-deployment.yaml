@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iex-poller-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: iex-poller
+  template:
+    metadata:
+      labels:
+        component: iex-poller
+    spec:
+      containers:
+        - name: iex-poller
+          image: anatoliifrolov/iex-poller
+          env:
+            - name: IEX_TOKEN
+              value: Tpk_57b41cd935274c3c9b96a4a8dcc6bf88
+            - name: IEX_SYMBOLS
+              value: aapl,fb
+            - name: IEX_POLL_INTERVAL
+              value: "600"
+            - name: IEX_URL
+              value: https://sandbox.iexapis.com/beta
+            - name: PGHOST
+              value: "127.0.0.1"
+            - name: PGSSLMODE
+              value: disable
+            - name: PGDATABASE
+              value: quotes
+            - name: PGUSER
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: PGPASSWORD
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          command: ["/cloud_sql_proxy",
+                    "-instances=stock-quotes:europe-west6:postgres=tcp:5432",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          securityContext:
+            runAsUser: 2
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials

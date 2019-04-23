@@ -1,0 +1,9 @@
+[submodule "iex-poller/deps/postgres-cxx-client"]
+	path = iex-poller/deps/postgres-cxx-client
+	url = https://github.com/anatoliifrolov/postgres-cxx-client.git
+[submodule "iex-poller/deps/fmt"]
+	path = iex-poller/deps/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "iex-poller/deps/json"]
+	path = iex-poller/deps/json
+	url = https://github.com/nlohmann/json.git
